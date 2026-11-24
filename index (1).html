@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisCrypt - End-to-End Encryption Engine</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.2s ease; }
+        body { background-color: #0b0f17; color: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .app-container { width: 100%; max-width: 650px; background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        h2 { margin-top: 0; color: #38bdf8; font-size: 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1f2937; padding-bottom: 15px; }
+        .section { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #9ca3af; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        textarea, input { width: 100%; background: #0b0f17; border: 1px solid #374151; border-radius: 8px; padding: 12px; color: #fff; font-size: 14px; outline: none; resize: none; }
+        textarea:focus, input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { width: 100%; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; }
+        .btn-encrypt { background: #38bdf8; color: #0b0f17; }
+        .btn-encrypt:hover { background: #0ea5e9; }
+        .btn-decrypt { background: #10b981; color: #0b0f17; }
+        .btn-decrypt:hover { background: #059669; }
+        .output-box { background: #030712; border: 1px dashed #4b5563; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; word-break: break-all; min-height: 50px; color: #38bdf8; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <h2>🔒 AEGIS-CRYPT // AES-GCM ENGINE</h2>
+        
+        <div class="section">
+            <label>Secret Passphrase (Encryption Key)</label>
+            <input type="password" id="secretKey" placeholder="Enter a secure key phrase to lock/unlock the text">
+        </div>
+
+        <div class="section">
+            <label>Input Message / Ciphertext</label>
+            <textarea id="inputText" rows="4" placeholder="Type a plain text message to encrypt, or paste encrypted code to decrypt..."></textarea>
+        </div>
+
+        <div class="section row">
+            <button class="btn-encrypt" onclick="processCrypto('encrypt')">Encrypt Message</button>
+            <button class="btn-decrypt" onclick="processCrypto('decrypt')">Decrypt Message</button>
+        </div>
+
+        <div class="section">
+            <label>Cryptographic Output Result</label>
+            <div class="output-box" id="outputConsole">Awaiting cryptographic execution...</div>
+        </div>
+    </div>
+
+    <script>
+        // High-level wrapper for browser native WebCrypto API
+        async function getCryptoKey(passwordStr) {
+            const enc = new TextEncoder();
+            const keyMaterial = await window.crypto.subtle.importKey(
+                "raw", enc.encode(passwordStr), { name: "PBKDF2" }, false, ["deriveKey"]
+            );
+            return window.crypto.subtle.deriveKey(
+                { name: "PBKDF2", salt: enc.encode("StaticSalt123"), iterations: 100000, hash: "SHA-256" },
+                keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+            );
+        }
+
+        async function processCrypto(action) {
+            const password = document.getElementById('secretKey').value;
+            const text = document.getElementById('inputText').value;
+            const output = document.getElementById('outputConsole');
+
+            if (!password || !text) {
+                output.innerText = "ERROR: Missing required fields (Passphrase or Input text).";
+                output.style.color = "#ef4444";
+                return;
+            }
+
+            try {
+                const key = await getCryptoKey(password);
+                const encoder = new TextEncoder();
+
+                if (action === 'encrypt') {
+                    // Initialization Vector (IV) makes every single execution output look completely unique
+                    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+                    const encryptedBytes = await window.crypto.subtle.encrypt(
+                        { name: "AES-GCM", iv: iv }, key, encoder.encode(text)
+                    );
+                    
+                    // Bundle IV + Ciphertext into a transportable string package
+                    const combined = new Uint8Array(iv.length + encryptedBytes.byteLength);
+                    combined.set(iv);
+                    combined.set(new Uint8Array(encryptedBytes), iv.length);
+                    
+                    output.innerText = btoa(String.fromCharCode.apply(null, combined));
+                    output.style.color = "#38bdf8";
+                } 
+                else if (action === 'decrypt') {
+                    const combined = new Uint8Array(atob(text).split("").map(c => c.charCodeAt(0)));
+                    const iv = combined.slice(0, 12);
+                    const data = combined.slice(12);
+
+                    const decryptedBytes = await window.crypto.subtle.decrypt(
+                        { name: "AES-GCM", iv: iv }, key, data
+                    );
+                    
+                    output.innerText = new TextDecoder().decode(decryptedBytes);
+                    output.style.color = "#10b981";
+                }
+            } catch (e) {
+                output.innerText = "CRYPTOGRAPHIC FAILURE: Invalid key or corrupted payload text.";
+                output.style.color = "#ef4444";
+            }
+        }
+    </script>
+</body>
+</html>
