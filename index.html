@@ -1,113 +1,977 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AegisCrypt - End-to-End Encryption Engine</title>
-    <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.2s ease; }
-        body { background-color: #0b0f17; color: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .app-container { width: 100%; max-width: 650px; background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        h2 { margin-top: 0; color: #38bdf8; font-size: 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1f2937; padding-bottom: 15px; }
-        .section { margin-bottom: 20px; }
-        label { display: block; font-size: 13px; font-weight: 600; color: #9ca3af; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        textarea, input { width: 100%; background: #0b0f17; border: 1px solid #374151; border-radius: 8px; padding: 12px; color: #fff; font-size: 14px; outline: none; resize: none; }
-        textarea:focus, input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        button { width: 100%; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; }
-        .btn-encrypt { background: #38bdf8; color: #0b0f17; }
-        .btn-encrypt:hover { background: #0ea5e9; }
-        .btn-decrypt { background: #10b981; color: #0b0f17; }
-        .btn-decrypt:hover { background: #059669; }
-        .output-box { background: #030712; border: 1px dashed #4b5563; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; word-break: break-all; min-height: 50px; color: #38bdf8; margin-top: 5px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d18">
+<title>AEGIS-CRYPT | Secure Encryption</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg: #080d18;
+    --panel: rgba(17, 26, 43, .82);
+    --panel2: #0c1423;
+    --border: rgba(148, 163, 184, .15);
+    --cyan: #38bdf8;
+    --blue: #6366f1;
+    --green: #34d399;
+    --red: #fb7185;
+    --text: #edf5ff;
+    --muted: #8492a8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+}
+
+#particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+}
+
+.background-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: .12;
+    pointer-events: none;
+    z-index: -1;
+    background: #2563eb;
+    top: -250px;
+    left: -150px;
+}
+
+.background-glow.two {
+    background: #0891b2;
+    top: auto;
+    left: auto;
+    bottom: -350px;
+    right: -150px;
+}
+
+.app {
+    width: min(100% - 36px, 850px);
+    margin: 0 auto;
+    padding: 35px 0 25px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 65px;
+    animation: slideDown .7s ease both;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #0ea5e9, #4f46e5);
+    box-shadow: 0 0 30px #0ea5e944;
+    font-size: 22px;
+}
+
+.brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-size: 19px;
+}
+
+.brand-name span { color: var(--cyan); }
+
+.version {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.secure-pill {
+    border: 1px solid rgba(52,211,153,.25);
+    color: var(--green);
+    background: rgba(52,211,153,.07);
+    padding: 8px 12px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 2s infinite;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 38px;
+    animation: slideUp .7s ease both;
+}
+
+.hero-tag {
+    display: inline-flex;
+    padding: 7px 13px;
+    border: 1px solid rgba(56,189,248,.2);
+    background: rgba(56,189,248,.06);
+    color: var(--cyan);
+    border-radius: 30px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+}
+
+.hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(32px, 6vw, 51px);
+    letter-spacing: -2px;
+    margin: 0;
+    line-height: 1.15;
+}
+
+.hero h1 span {
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.hero p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 490px;
+    margin: 15px auto 0;
+}
+
+.card {
+    background: var(--panel);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid var(--border);
+    border-radius: 19px;
+    padding: 27px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.25);
+    animation: slideUp .8s ease both;
+}
+
+.card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.card-heading h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    margin: 0;
+}
+
+.card-heading small {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.field { margin-bottom: 22px; }
+
+.field label {
+    display: block;
+    color: #b3c0d3;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.input-wrap { position: relative; }
+
+input, textarea {
+    width: 100%;
+    color: var(--text);
+    background: rgba(5, 11, 22, .75);
+    border: 1px solid #27354b;
+    border-radius: 10px;
+    outline: none;
+    font: 14px 'DM Sans', sans-serif;
+    transition: border .2s, box-shadow .2s;
+}
+
+input {
+    height: 49px;
+    padding: 0 48px 0 14px;
+}
+
+textarea {
+    min-height: 125px;
+    padding: 14px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+input:focus, textarea:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.1);
+}
+
+input::placeholder, textarea::placeholder {
+    color: #536177;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 17px;
+    padding: 5px;
+}
+
+.field-info {
+    color: #65758d;
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+    margin: 25px 0;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.action-btn {
+    min-height: 49px;
+    border: 0;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .6px;
+    transition: transform .2s, box-shadow .2s, filter .2s;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.12);
+}
+
+.action-btn:active { transform: scale(.98); }
+
+.encrypt-btn {
+    color: #07111d;
+    background: linear-gradient(110deg, #38bdf8, #60a5fa);
+    box-shadow: 0 5px 22px #38bdf822;
+}
+
+.decrypt-btn {
+    color: #062018;
+    background: linear-gradient(110deg, #34d399, #6ee7b7);
+    box-shadow: 0 5px 22px #34d39922;
+}
+
+.action-btn:disabled {
+    opacity: .55;
+    cursor: wait;
+    transform: none;
+}
+
+.output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.output-header label {
+    color: #b3c0d3;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.output-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.small-btn {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.03);
+    color: #aebdd1;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.small-btn:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+}
+
+.output-box {
+    min-height: 115px;
+    max-height: 260px;
+    overflow: auto;
+    padding: 15px;
+    background: rgba(3, 8, 17, .85);
+    border: 1px dashed #34445c;
+    border-radius: 10px;
+    color: var(--cyan);
+    font: 12px/1.8 'Courier New', monospace;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.output-box.placeholder { color: #65758d; }
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 14px;
+    min-height: 20px;
+}
+
+.status.success { color: var(--green); }
+.status.error { color: var(--red); }
+
+.spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid #52647b;
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+}
+
+.security-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.info-item {
+    background: rgba(17,26,43,.6);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+}
+
+.info-item strong {
+    display: block;
+    font-size: 12px;
+    color: #d7e5f7;
+    margin-bottom: 5px;
+}
+
+.info-item span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+footer {
+    text-align: center;
+    color: #58667a;
+    font-size: 11px;
+    padding: 30px 0 5px;
+    line-height: 1.8;
+}
+
+@keyframes pulse {
+    50% { opacity: .35; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media(max-width: 600px) {
+    .app { width: min(100% - 24px, 850px); padding-top: 22px; }
+    header { margin-bottom: 45px; }
+    .card { padding: 19px 15px; }
+    .hero h1 { letter-spacing: -1px; }
+    .hero p { font-size: 12px; }
+    .actions { gap: 9px; }
+    .action-btn { font-size: 10px; padding: 10px 5px; }
+    .security-info { gap: 7px; }
+    .info-item { padding: 12px 5px; }
+    .info-item strong { font-size: 10px; }
+    .info-item span { font-size: 9px; }
+    .version { font-size: 9px; }
+}
+
+@media(prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="app-container">
-        <h2>🔒 AEGIS-CRYPT // AES-GCM ENGINE</h2>
-        
-        <div class="section">
-            <label>Secret Passphrase (Encryption Key)</label>
-            <input type="password" id="secretKey" placeholder="Enter a secure key phrase to lock/unlock the text">
-        </div>
+<canvas id="particles"></canvas>
+<div class="background-glow"></div>
+<div class="background-glow two"></div>
 
-        <div class="section">
-            <label>Input Message / Ciphertext</label>
-            <textarea id="inputText" rows="4" placeholder="Type a plain text message to encrypt, or paste encrypted code to decrypt..."></textarea>
-        </div>
+<main class="app">
 
-        <div class="section row">
-            <button class="btn-encrypt" onclick="processCrypto('encrypt')">Encrypt Message</button>
-            <button class="btn-decrypt" onclick="processCrypto('decrypt')">Decrypt Message</button>
-        </div>
-
-        <div class="section">
-            <label>Cryptographic Output Result</label>
-            <div class="output-box" id="outputConsole">Awaiting cryptographic execution...</div>
+<header>
+    <div class="brand">
+        <div class="brand-icon">⬡</div>
+        <div>
+            <div class="brand-name">AEGIS<span>CRYPT</span></div>
+            <div class="version">SECURITY ENGINE / 2.0</div>
         </div>
     </div>
 
-    <script>
-        // High-level wrapper for browser native WebCrypto API
-        async function getCryptoKey(passwordStr) {
-            const enc = new TextEncoder();
-            const keyMaterial = await window.crypto.subtle.importKey(
-                "raw", enc.encode(passwordStr), { name: "PBKDF2" }, false, ["deriveKey"]
-            );
-            return window.crypto.subtle.deriveKey(
-                { name: "PBKDF2", salt: enc.encode("StaticSalt123"), iterations: 100000, hash: "SHA-256" },
-                keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
-            );
+    <div class="secure-pill">
+        <span class="dot"></span>
+        SYSTEM READY
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-tag">✦ ADVANCED ENCRYPTION SYSTEM</div>
+    <h1>Your Data. <span>Your Control.</span></h1>
+    <p>
+        Secure your sensitive messages with military-grade AES-256-GCM
+        encryption. Your encryption happens locally in your browser.
+    </p>
+</section>
+
+<section class="card">
+
+    <div class="card-heading">
+        <h2>🔐 Encryption Console</h2>
+        <small>AES-256-GCM</small>
+    </div>
+
+    <div class="field">
+        <label for="secretKey">Secret Passphrase</label>
+        <div class="input-wrap">
+            <input
+                type="password"
+                id="secretKey"
+                placeholder="Enter your secret passphrase"
+                autocomplete="new-password"
+            >
+            <button class="toggle-password" id="togglePassword"
+                type="button" aria-label="Show password">◉</button>
+        </div>
+        <div class="field-info">
+            Your passphrase is never sent to a server.
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="inputText">Input Message / Ciphertext</label>
+        <textarea
+            id="inputText"
+            placeholder="Enter your message here, or paste an encrypted payload..."
+            spellcheck="false"
+        ></textarea>
+    </div>
+
+    <div class="actions">
+        <button class="action-btn encrypt-btn" id="encryptBtn">
+            ◈ ENCRYPT MESSAGE
+        </button>
+        <button class="action-btn decrypt-btn" id="decryptBtn">
+            ◇ DECRYPT MESSAGE
+        </button>
+    </div>
+
+    <div class="output-header">
+        <label>Cryptographic Output</label>
+        <div class="output-actions">
+            <button class="small-btn" id="copyBtn">COPY</button>
+            <button class="small-btn" id="clearBtn">CLEAR</button>
+        </div>
+    </div>
+
+    <div class="output-box placeholder" id="output">
+        Awaiting cryptographic execution...
+    </div>
+
+    <div class="status" id="status" aria-live="polite">
+        <span class="dot"></span>
+        Ready to process your data.
+    </div>
+
+</section>
+
+<section class="security-info">
+    <div class="info-item">
+        <strong>AES-256</strong>
+        <span>Encryption</span>
+    </div>
+    <div class="info-item">
+        <strong>PBKDF2</strong>
+        <span>Key Derivation</span>
+    </div>
+    <div class="info-item">
+        <strong>SHA-256</strong>
+        <span>Hash Algorithm</span>
+    </div>
+</section>
+
+<footer>
+    AEGIS-CRYPT © 2026 · CLIENT-SIDE ENCRYPTION ENGINE<br>
+    Your privacy. Your keys. Your security.
+</footer>
+
+</main>
+
+<script>
+// =============================================
+// PARTICLE BACKGROUND - MOUSE INTERACTION
+// =============================================
+
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+let mouse = { x: -1000, y: -1000 };
+let width, height;
+const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+).matches;
+
+function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const count = Math.min(
+        100,
+        Math.floor(width * height / 10500)
+    );
+
+    particles = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - .5) * .45,
+        vy: (Math.random() - .5) * .45,
+        size: Math.random() * 1.7 + .5
+    }));
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+window.addEventListener("pointermove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+window.addEventListener("pointerleave", () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
+});
+
+function animateParticles() {
+    ctx.clearRect(0, 0, width, height);
+
+    for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        if (!reducedMotion) {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 130 && distance > 0) {
+                const force = (130 - distance) / 130;
+                p.x += dx / distance * force * 1.5;
+                p.y += dy / distance * force * 1.5;
+            }
         }
 
-        async function processCrypto(action) {
-            const password = document.getElementById('secretKey').value;
-            const text = document.getElementById('inputText').value;
-            const output = document.getElementById('outputConsole');
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(56,189,248,.7)";
+        ctx.fill();
 
-            if (!password || !text) {
-                output.innerText = "ERROR: Missing required fields (Passphrase or Input text).";
-                output.style.color = "#ef4444";
-                return;
+        for (let j = i + 1; j < particles.length; j++) {
+            const q = particles[j];
+            const dx = p.x - q.x;
+            const dy = p.y - q.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 105) {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(q.x, q.y);
+                ctx.strokeStyle =
+                    `rgba(56,189,248,${(1-distance/105)*.13})`;
+                ctx.lineWidth = .7;
+                ctx.stroke();
             }
+        }
+    }
 
-            try {
-                const key = await getCryptoKey(password);
-                const encoder = new TextEncoder();
+    if (!reducedMotion) requestAnimationFrame(animateParticles);
+}
 
-                if (action === 'encrypt') {
-                    // Initialization Vector (IV) makes every single execution output look completely unique
-                    const iv = window.crypto.getRandomValues(new Uint8Array(12));
-                    const encryptedBytes = await window.crypto.subtle.encrypt(
-                        { name: "AES-GCM", iv: iv }, key, encoder.encode(text)
-                    );
-                    
-                    // Bundle IV + Ciphertext into a transportable string package
-                    const combined = new Uint8Array(iv.length + encryptedBytes.byteLength);
-                    combined.set(iv);
-                    combined.set(new Uint8Array(encryptedBytes), iv.length);
-                    
-                    output.innerText = btoa(String.fromCharCode.apply(null, combined));
-                    output.style.color = "#38bdf8";
-                } 
-                else if (action === 'decrypt') {
-                    const combined = new Uint8Array(atob(text).split("").map(c => c.charCodeAt(0)));
-                    const iv = combined.slice(0, 12);
-                    const data = combined.slice(12);
+animateParticles();
 
-                    const decryptedBytes = await window.crypto.subtle.decrypt(
-                        { name: "AES-GCM", iv: iv }, key, data
-                    );
-                    
-                    output.innerText = new TextDecoder().decode(decryptedBytes);
-                    output.style.color = "#10b981";
+
+// =============================================
+// AES-256-GCM CRYPTOGRAPHIC ENGINE
+// =============================================
+
+const ITERATIONS = 310000;
+const PREFIX = "AEGIS1:";
+
+// Retained only to decrypt ciphertext made by the original version.
+// New encryption never uses this fixed salt.
+const LEGACY_SALT = new TextEncoder().encode("StaticSalt123");
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder("utf-8", { fatal: true });
+
+const input = document.getElementById("inputText");
+const password = document.getElementById("secretKey");
+const output = document.getElementById("output");
+const status = document.getElementById("status");
+const encryptBtn = document.getElementById("encryptBtn");
+const decryptBtn = document.getElementById("decryptBtn");
+
+function setStatus(message, type = "") {
+    status.className = "status " + type;
+    status.innerHTML = "";
+
+    const icon = document.createElement("span");
+    icon.className = type === "error" ? "" : "dot";
+    if (type === "error") icon.textContent = "!";
+    status.append(icon, document.createTextNode(message));
+}
+
+function setOutput(value, type = "normal") {
+    output.textContent = value;
+    output.classList.toggle("placeholder", type === "placeholder");
+    output.style.color =
+        type === "error" ? "#fb7185" :
+        type === "success" ? "#34d399" : "#38bdf8";
+}
+
+function bytesToBase64(bytes) {
+    let binary = "";
+    const chunkSize = 0x8000;
+
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(
+            ...bytes.subarray(i, i + chunkSize)
+        );
+    }
+
+    return btoa(binary);
+}
+
+function base64ToBytes(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    return bytes;
+}
+
+async function deriveKey(passphrase, salt, iterations) {
+    const material = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(passphrase),
+        "PBKDF2",
+        false,
+        ["deriveKey"]
+    );
+
+    return crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt,
+            iterations,
+            hash: "SHA-256"
+        },
+        material,
+        {
+            name: "AES-GCM",
+            length: 256
+        },
+        false,
+        ["encrypt", "decrypt"]
+    );
+}
+
+function setBusy(busy, action) {
+    encryptBtn.disabled = busy;
+    decryptBtn.disabled = busy;
+
+    encryptBtn.textContent = busy && action === "encrypt"
+        ? "ENCRYPTING..." : "◈ ENCRYPT MESSAGE";
+
+    decryptBtn.textContent = busy && action === "decrypt"
+        ? "DECRYPTING..." : "◇ DECRYPT MESSAGE";
+
+    if (busy) {
+        status.innerHTML = '<span class="spinner"></span> Processing cryptographic operation...';
+        status.className = "status";
+    }
+}
+
+async function processCrypto(action) {
+    const passphrase = password.value;
+    const text = input.value;
+
+    if (!window.crypto?.subtle || !window.isSecureContext) {
+        setOutput(
+            "Web Crypto requires a secure context. Open this website through HTTPS or localhost.",
+            "error"
+        );
+        setStatus("Secure browser context required.", "error");
+        return;
+    }
+
+    if (!passphrase.trim() || !text.trim()) {
+        setOutput(
+            "Please provide both a passphrase and input text.",
+            "error"
+        );
+        setStatus("Missing required fields.", "error");
+        return;
+    }
+
+    setBusy(true, action);
+
+    try {
+        if (action === "encrypt") {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+
+            const key = await deriveKey(
+                passphrase, salt, ITERATIONS
+            );
+
+            const encrypted = await crypto.subtle.encrypt(
+                {
+                    name: "AES-GCM",
+                    iv,
+                    tagLength: 128
+                },
+                key,
+                encoder.encode(text)
+            );
+
+            // Format: prefix + base64(salt + IV + ciphertext)
+            const combined = new Uint8Array(
+                salt.length + iv.length + encrypted.byteLength
+            );
+
+            combined.set(salt, 0);
+            combined.set(iv, salt.length);
+            combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+            setOutput(
+                PREFIX + bytesToBase64(combined),
+                "success"
+            );
+
+            setStatus(
+                "Encryption successful. Your message is secured.",
+                "success"
+            );
+
+        } else {
+            let combined;
+            let key;
+            let iv;
+            let encryptedData;
+
+            if (text.startsWith(PREFIX)) {
+                // Current secure format
+                combined = base64ToBytes(text.slice(PREFIX.length));
+
+                if (combined.length < 45) {
+                    throw new Error("Invalid encrypted payload.");
                 }
-            } catch (e) {
-                output.innerText = "CRYPTOGRAPHIC FAILURE: Invalid key or corrupted payload text.";
-                output.style.color = "#ef4444";
+
+                const salt = combined.slice(0, 16);
+                iv = combined.slice(16, 28);
+                encryptedData = combined.slice(28);
+
+                key = await deriveKey(
+                    passphrase, salt, ITERATIONS
+                );
+
+            } else {
+                // Backward compatibility with original AegisCrypt
+                combined = base64ToBytes(text);
+
+                if (combined.length < 29) {
+                    throw new Error("Invalid legacy payload.");
+                }
+
+                iv = combined.slice(0, 12);
+                encryptedData = combined.slice(12);
+
+                key = await deriveKey(
+                    passphrase, LEGACY_SALT, 100000
+                );
             }
+
+            const decrypted = await crypto.subtle.decrypt(
+                {
+                    name: "AES-GCM",
+                    iv,
+                    tagLength: 128
+                },
+                key,
+                encryptedData
+            );
+
+            setOutput(
+                decoder.decode(decrypted),
+                "success"
+            );
+
+            setStatus(
+                "Decryption successful. Message authenticated.",
+                "success"
+            );
         }
-    </script>
+
+    } catch (error) {
+        setOutput(
+            "CRYPTOGRAPHIC FAILURE\n\nInvalid passphrase, corrupted payload, or unsupported data.",
+            "error"
+        );
+
+        setStatus(
+            "Operation failed. Authentication unsuccessful.",
+            "error"
+        );
+
+    } finally {
+        setBusy(false);
+    }
+}
+
+
+// =============================================
+// USER INTERFACE CONTROLS
+// =============================================
+
+encryptBtn.addEventListener("click", () => processCrypto("encrypt"));
+decryptBtn.addEventListener("click", () => processCrypto("decrypt"));
+
+document.getElementById("togglePassword").addEventListener("click", () => {
+    const isPassword = password.type === "password";
+    password.type = isPassword ? "text" : "password";
+    document.getElementById("togglePassword").textContent =
+        isPassword ? "◎" : "◉";
+});
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+    const text = output.textContent;
+
+    if (!text || output.classList.contains("placeholder")) {
+        setStatus("Nothing to copy.", "error");
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Output copied to clipboard.", "success");
+    } catch {
+        setStatus("Clipboard unavailable. Select and copy manually.", "error");
+    }
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+    input.value = "";
+    password.value = "";
+    setOutput("Awaiting cryptographic execution...", "placeholder");
+    setStatus("Console cleared. Ready for new operation.");
+});
+
+</script>
 </body>
 </html>
